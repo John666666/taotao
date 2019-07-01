@@ -1,0 +1,43 @@
+server:
+  port: 11000
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+# 大广告的url
+advertising: 
+  url: http://localhost:12000/content/89
+  
+  
+#大广告地址
+adv:
+  url: http://127.0.0.1:28017/content/89
+  
+search:
+  url: http://127.0.0.1:38017/search/q
+
+item:
+  url: http://127.0.0.1:28017/item/view
+  
+itemDesc:
+  url: http://127.0.0.1:28017/item/desc
+  
+itemParamItem:
+  url: http://127.0.0.1:28017/item/param
+  
+cookie:
+  key: guangjia7
+  time: 10000
+  
+register:
+  url: http://sso.taotao.com/user/register
+  
+check:
+  url: http://sso.taotao.com/user
+  
+login:
+  url: http://sso.taotao.com/user/login
+  
+getUser:
+  url: http://sso.taotao.com/user/getUser

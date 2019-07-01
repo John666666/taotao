@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-2.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- 扫描组件 不能扫描controller -->
+	<context:component-scan base-package="com.taotao.mapper"/>
+	<context:component-scan base-package="com.taotao.service"/>
+	
+	<!-- 读取配置文件 -->
+	<context:property-placeholder location="classpath*:*.properties"/>
+	
+	
+	<!-- 连接数据库 dataSource（数据源） -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.loginName}"></property>
+		<property name="password" value="${jdbc.loginPwd}"></property>
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+	</bean>
+	
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- configLocation mybatis配置文件的位置 -->
+		<property name="configLocation" value="classpath:mybatis.xml"></property>
+	</bean>
+
+	<!-- 因为mapper 层是接口，需要把实现类注入service，所以mapper接口生成实现类，交给spring 管理 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.taotao.mapper"></property>
+	</bean>
+	
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 开始事务注解 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	
+	<rabbit:connection-factory id="connectionFactory" virtual-host="/"
+        host="127.0.0.1" username="admin" password="123456"
+        port="5672" />
+    <rabbit:admin connection-factory="connectionFactory" />
+	
+
+	<!-- 声明消息队列 -->
+	<rabbit:queue id="messageQueue" durable="true"
+        auto-delete="false" exclusive="false" name="messageQueue" />
+
+ <!-- 创建模板 -->   
+  	<rabbit:topic-exchange name="messageExchange"
+        durable="true" auto-delete="false" id="messageExchange">
+        <rabbit:bindings>
+            <!-- 声明队列和交换的关系 -->
+            <rabbit:binding pattern="message.#" queue="messageQueue"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <rabbit:template exchange="messageExchange" id="rabbitTemplate"
+        connection-factory="connectionFactory" />
+        
+        <!--声明生产者 -->
+    <bean id="messageSender" class="com.taotao.amqp.MessageSender">
+        <property name="amqpTemplate" ref="rabbitTemplate"></property>
+    </bean>
+</beans>
