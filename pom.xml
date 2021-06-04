@@ -35,7 +35,7 @@
 		<commons-lang3.version>3.3.2</commons-lang3.version>
 		<commons-io.version>1.3.2</commons-io.version>
 		<commons-net.version>3.3</commons-net.version>
-		<httpclient.version>4.3.5</httpclient.version>
+		<httpclient.version>4.5.13</httpclient.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<fileupload.version>1.3.1</fileupload.version>
 		<mybatis.springboot>1.3.2</mybatis.springboot>
